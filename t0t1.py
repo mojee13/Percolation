@@ -1,3 +1,5 @@
+#ig
+
 import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
@@ -6,9 +8,7 @@ import tqdm
 from igraph import *
 import pandas as pd
 #random.seed(10)
-# finding delta in er bf pr
-
-#ig
+plt.rcParams.update({'font.size': 12})
 
 def er_add(g):
     nodes = np.arange(0,len(g.vs))
@@ -54,9 +54,9 @@ def index_c(myList, v):
         if v in x:
             return len(myList[i])
 
+
+# finding delta in er bf pr
 random.seed()
-
-
 def delta(model,n):
     g=Graph(n,directed=False)
     
@@ -116,38 +116,67 @@ def delta(model,n):
     else:
         return delta/n
 
-    
-deltas_pr=[]
-ns=[1000,5000,10000,15000,20000,30000,50000]
-std_pr=[]
-ens=10
-for n in tqdm.tqdm(ns):
-    av=[]
-    for _ in tqdm.tqdm(range(ens)):
-        av.append(delta('pr',n))
-    deltas_pr.append(mean(av))
-    std_pr.append(np.std(av))
 
+def t(n):
+    g=Graph(n,directed=False)
+    t0=0
+    t1=0
+    gcc =0
+    delta=0
+    while gcc<np.sqrt(n):
+        er_add(g)
+        gcc = len(g.clusters().giant().vs)
+        t0+=1
+        t1+=1
+    while gcc<n/2:
+        er_add(g)
+        gcc = len(g.clusters().giant().vs)
+        t1+=1
+    delta=t1-t0
+    return t0/n,t1/n
+
+ts=[]
+std_t0=[]
+std_t1=[]
+ns=[1000,10000,25000,50000,75000,100000]
+ens=5
+for n in tqdm.tqdm(ns):
+    av_t0=[]
+    av_t1=[]
+
+    for _ in tqdm.tqdm(range(ens)):
+        t0,t1=t(n)
+        av_t0.append(t0)
+        av_t1.append(t1)
+    ts.append([mean(av_t0),mean(av_t1)])
+    std_t0.append(np.std(av_t0))
+    std_t1.append(np.std(av_t1))
+    
+    
+
+t0=[lst[0] for lst in ts]
+t1=[lst[1] for lst in ts]
+
+    
+
+plt.plot(ns,t0,'o',color='k',label="t0")
+plt.errorbar(ns,t0, std_t0,color='k', capsize=10,fmt = 'o')
+plt.plot(ns,t1,'o',color='blue',label="t1")
+plt.errorbar(ns,t1, std_t1,color='blue', capsize=10,fmt = 'o')
+
+plt.legend()
+plt.grid(color = 'green', linestyle = '--', linewidth = 0.5)
+plt.xlabel('n')
+plt.ylabel('t/n')
 
 data = {
     'ns': ns,
-    'deltas_pr': deltas_pr,
-    'std_pr': std_pr,
+    't0': t0,
+    't1': t1,
+    'std_t0': std_t0,
+    'std_t1': std_t1
 }
 
 df = pd.DataFrame(data)
-df.to_csv('dataframe_delta_pr.csv', index=False)
-
-plt.scatter(ns,deltas_pr,s=7,marker='+',color='k',label='PR')
-plt.errorbar(ns,deltas_pr,std_pr, capsize=10,fmt = 'o')
-
-d = u"\u0394"  # Delta symbol
-n_power = r"$n^{\frac{2}{3}}$"  # LaTeX formatting for n^2/3
-
-x_label = f"{d}/{n_power}"
-
-plt.grid(color = 'green', linestyle = '--', linewidth = 0.5)
-plt.ylabel(x_label)
-plt.xlabel('n')
-plt.legend()
-plt.savefig("delta_pr.pdf")
+plt.savefig("t0t1.pdf")
+df.to_csv('dataframe_t0t1.csv', index=False)
