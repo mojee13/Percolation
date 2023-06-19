@@ -138,7 +138,7 @@ def t(n):
 ts=[]
 std_t0=[]
 std_t1=[]
-ns=[1000,10000,25000,50000,75000,100000]
+ns=[200000,300000,]
 ens=5
 for n in tqdm.tqdm(ns):
     av_t0=[]
@@ -178,5 +178,5 @@ data = {
 }
 
 df = pd.DataFrame(data)
-plt.savefig("t0t1.pdf")
-df.to_csv('dataframe_t0t1.csv', index=False)
+plt.savefig("t0t1_300k.pdf")
+df.to_csv('dataframe_t0t1_300k.csv', index=False)

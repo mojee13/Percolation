@@ -118,7 +118,7 @@ def delta(model,n):
 
     
 deltas_pr=[]
-ns=[1000,5000,10000,15000,20000,30000,50000]
+ns=[100000,150000]
 std_pr=[]
 ens=10
 for n in tqdm.tqdm(ns):
@@ -136,7 +136,7 @@ data = {
 }
 
 df = pd.DataFrame(data)
-df.to_csv('dataframe_delta_pr.csv', index=False)
+df.to_csv('dataframe_delta_pr_100000.csv', index=False)
 
 plt.scatter(ns,deltas_pr,s=7,marker='+',color='k',label='PR')
 plt.errorbar(ns,deltas_pr,std_pr, capsize=10,fmt = 'o')
@@ -150,4 +150,4 @@ plt.grid(color = 'green', linestyle = '--', linewidth = 0.5)
 plt.ylabel(x_label)
 plt.xlabel('n')
 plt.legend()
-plt.savefig("delta_pr.pdf")
+plt.savefig("delta_pr_100000.pdf")
