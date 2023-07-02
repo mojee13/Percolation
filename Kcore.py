@@ -113,8 +113,8 @@ gamma3 = 7
 
 
 # Generate a random Erdos-Renyi graph
-ss=1
-n = 10000
+ss=25
+n = 1000000
 z10 = 10
 z20 = 20
 p10 = z10/n
