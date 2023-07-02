@@ -11,8 +11,8 @@ from sklearn.preprocessing import normalize
 
 #######################################################
 KK=np.logspace(np.log10(1), np.log10(100), num=20)
-num_nodes = 4000
-iterations= 4000
+num_nodes = 10000
+iterations= 10000
 #####################################################3
 
 def generate_random_graph(degree_sequence):
@@ -62,7 +62,7 @@ G_A=[]
 asort_A=[]
 
 for K in KK:
-    N=10+4*int(K)
+    N=10+2*int(K)
     p = 0.5
     q = 1-p
     EJK=np.zeros((N,N))
