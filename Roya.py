@@ -6,12 +6,13 @@ from scipy.special import comb
 import numpy as np
 import pandas as pd
 import tqdm
+from sklearn.preprocessing import normalize
 
 
 #######################################################
 KK=np.logspace(np.log10(1), np.log10(100), num=20)
-num_nodes = 10000
-iterations= 10000
+num_nodes = 5000
+iterations= 5000
 #####################################################3
 
 def generate_random_graph(degree_sequence):
@@ -47,10 +48,9 @@ def apply_metropolis_dynamics(g, EJK, iterations):
 
         # Calculate the acceptance probability
         p_change = EJK[j1,j2]*EJK[k1,k2] / EJK[j1,k1]*EJK[j2,k2]
-        acceptance_prob = min(1, p_change)
         #print(p_change)
         # Replace the edges with the new ones with the acceptance probability
-        if np.random.random() < acceptance_prob:
+        if np.random.random() < p_change:
             #print(p_change)
             g.remove_edges_from([(v1, w1), (v2, w2)])
             g.add_edges_from([(v1, v2), (w1, w2)])
@@ -62,13 +62,17 @@ G_A=[]
 asort_A=[]
 
 for K in KK:
-    N=10+2*int(K)
+    N=10+int(K)
     p = 0.5
     q = 1-p
     EJK=np.zeros((N,N))
     for i in range(N):
         for j in range(N):
             EJK[i][j]=calculate_ejk(i+1,j+1,p,q,K)
+
+    #normalize matrix by rows
+    EJK = normalize(EJK, axis=1, norm='l1')
+
 
     num_columns = len(EJK[0])
 
@@ -110,13 +114,14 @@ G_N=[]
 asort_N=[]
 
 for K in KK:
-    N=10+2*int(K)
+    N=10+int(K)
     p = 0.1464
     q = 1-p
     EJK=np.zeros((N,N))
     for i in range(N):
         for j in range(N):
             EJK[i][j]=calculate_ejk(i+1,j+1,p,q,K)
+    EJK = normalize(EJK, axis=1, norm='l1')
 
     num_columns = len(EJK[0])
 
@@ -148,7 +153,7 @@ for K in KK:
     #pos = nx.spring_layout(graph)
     #nx.draw(graph,pos,node_size=5,width=.1)
     g = graph.copy()
-    updated_graph = apply_metropolis_dynamics(g,EJK, iterations=10000)
+    updated_graph = apply_metropolis_dynamics(g,EJK, iterations=iterations)
     gcc=len(max(nx.connected_components(updated_graph), key=len))
     G_N.append(gcc/num_nodes)
     asort_N.append(nx.degree_assortativity_coefficient(updated_graph))
@@ -158,13 +163,14 @@ G_D=[]
 asort_D=[]
 
 for K in KK:
-    N=10+2*int(K)
+    N=10+int(K)
     p = 0.05
     q = 1-p
     EJK=np.zeros((N,N))
     for i in range(N):
         for j in range(N):
             EJK[i][j]=calculate_ejk(i+1,j+1,p,q,K)
+    EJK = normalize(EJK, axis=1, norm='l1')
 
     num_columns = len(EJK[0])
 
@@ -196,7 +202,7 @@ for K in KK:
     #pos = nx.spring_layout(graph)
     #nx.draw(graph,pos,node_size=5,width=.1)
     g = graph.copy()
-    updated_graph = apply_metropolis_dynamics(g,EJK, iterations=10000)
+    updated_graph = apply_metropolis_dynamics(g,EJK, iterations=iterations)
     gcc=len(max(nx.connected_components(updated_graph), key=len))
     G_D.append(gcc/num_nodes)
     asort_D.append(nx.degree_assortativity_coefficient(updated_graph))
@@ -218,7 +224,7 @@ plt.ylabel('GCC/n')
 plt.xlabel('K')
 plt.xscale('log')
 plt.legend()
-plt.savefig('AS_GCC_ROY.pdf')
+plt.savefig('AS_GCC_ROY')
 
 
 #####################3
@@ -231,8 +237,8 @@ plt.plot(KK,asort_A,linestyle='--',color='red')
 plt.plot(KK,asort_N,linestyle='--',color='k')
 plt.scatter(KK,asort_N,marker='x',color='k',label='neutral')
 
-plt.scatter(KK,asort_N,marker='+',color='blue',label='disassortative')
-plt.plot(KK,asort_N,linestyle='--',color='blue')
+plt.scatter(KK,asort_D,marker='+',color='blue',label='disassortative')
+plt.plot(KK,asort_D,linestyle='--',color='blue')
 plt.xlabel('K')
 plt.ylabel('asort')
 plt.xscale('log')
