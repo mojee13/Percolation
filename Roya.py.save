@@ -10,9 +10,9 @@ from sklearn.preprocessing import normalize
 
 
 #######################################################
-KK=np.logspace(np.log10(1), np.log10(100), num=20)
-num_nodes = 10000
-iterations= 10000
+KK=np.logspace(np.log10(0.01), np.log10(10000), num=100)
+num_nodes = 1000
+iterations= 1000
 #####################################################3
 
 def generate_random_graph(degree_sequence):
